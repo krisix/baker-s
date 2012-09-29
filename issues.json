@@ -16,28 +16,6 @@
         "directory":            "book0",
         "cover-local":          "book0/cover.png",
         "cover-remote":         "http://tenkai.pl/baker-s/covers/0.png"
-    },
-    "Gazeta Dobry Znak #96": {
-        "issue-number":         "96",
-        "issue-number-desc":    "9 sierpnia 2012",
-        "release-date":         "2012-08-09",
-        "title":                "Gazeta Dobry Znak #96",
-        "main-topic":           "Show czy zaduma",
-        "download-url":         "http://tenkai.pl/bakerframework-extd/dobry-znak/2",
-        "directory":            "book1",
-        "cover-local":          "book1/cover.png",
-        "cover-remote":         "http://tenkai.pl/bakerframework-extd/dobry-znak/covers/96.png"
-    },
-    "Gazeta Dobry Znak #97": {
-        "issue-number":         "97",
-        "issue-number-desc":    "30 sierpnia 2012",
-        "release-date":         "2012-08-30",
-        "title":                "Gazeta Dobry Znak #97",
-        "main-topic":           "Wielki kryzys demograficzny RP",
-        "download-url":         "http://tenkai.pl/bakerframework-extd/dobry-znak/3",
-        "directory":            "book2",
-        "cover-local":          "book2/cover.png",
-        "cover-remote":         "http://tenkai.pl/bakerframework-extd/dobry-znak/covers/97.png"
     }
 	
 }
