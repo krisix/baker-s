@@ -33,13 +33,15 @@
 #import <UIKit/UIKit.h>
 #import <MessageUI/MessageUI.h>
 #import "IndexViewController.h"
+#import "IssuesListViewController.h"
 #import "ModalViewController.h"
 #import "Properties.h"
+#import "TopMenuViewController.h"
 
 
 @class Downloader;
 
-@interface BakerViewController : UIViewController <UIWebViewDelegate, UIScrollViewDelegate, MFMailComposeViewControllerDelegate, modalWebViewDelegate> {
+@interface BakerViewController : UIViewController <UIWebViewDelegate, UIScrollViewDelegate, MFMailComposeViewControllerDelegate, modalWebViewDelegate, TopMenuViewControllerDelegate, IssuesListViewControllerDelegate> {
     
     CGRect screenBounds;
     
@@ -49,6 +51,9 @@
     NSString *documentsBookPath;
     NSString *defaultScreeshotsPath;
     NSString *cachedScreenshotsPath;
+    
+    // path to currently opened issue
+    NSString *currentIssuePath;
     
     NSString *availableOrientation;
     NSString *renderingType;
@@ -101,7 +106,9 @@
     UIAlertView *feedbackAlert;
     
     IndexViewController *indexViewController;
+    IssuesListViewController *issuesListViewController;
     ModalViewController *myModalViewController;
+    TopMenuViewController *topMenuViewController;
     
     Properties *properties;
 }
@@ -110,6 +117,7 @@
 @property (nonatomic, retain) UIScrollView *scrollView;
 @property (nonatomic, retain) UIWebView *currPage;
 @property int currentPageNumber;
+@property (nonatomic, retain) NSString *documentsBookPath;
 
 #pragma mark - INIT
 - (id)initWithBookPath:(NSString *)bookPath;
@@ -131,6 +139,13 @@
 
 - (void)setupWebView:(UIWebView *)webView;
 - (void)addSkipBackupAttributeToItemAtPath:(NSString *)path;
+
+- (void)resetDocumentsBookPath:(NSString *)newDocumentsPath;
+
+#pragma mark - BOOK MANAGEMENT
+
+- (BOOL)refreshBookPath:(NSString *)partBookPath;
+- (BOOL)removeBook:(NSString *)partBookPath;
 
 #pragma mark - LOADING
 - (BOOL)changePage:(int)page;
@@ -163,6 +178,8 @@
 - (BOOL)checkScreeshotForPage:(int)pageNumber andOrientation:(NSString *)interfaceOrientation;
 - (void)takeScreenshotFromView:(UIWebView *)webView forPage:(int)pageNumber andOrientation:(NSString *)interfaceOrientation;
 - (void)placeScreenshotForView:(UIWebView *)webView andPage:(int)pageNumber andOrientation:(NSString *)interfaceOrientation;
+
+- (void)clearScreenshots;
 
 #pragma mark - GESTURES
 - (void)handleInterceptedTouch:(NSNotification *)notification;

@@ -49,7 +49,9 @@
     int actualIndexHeight;
     BOOL disabled;
     BOOL loadedFromBundle;
-    
+
+    BOOL automaticWidth;
+
     CGSize cachedContentSize;
     
     Properties *properties;
@@ -72,5 +74,10 @@
 - (void)setActualSize;
 - (void)setViewFrame:(CGRect)frame;
 - (NSString *)indexPath;
+
+// baker-s
+-(void)setNewBookBundlePath:(NSString *)newBookBundlePath;
+- (void)setIsDisabled:(BOOL)newDisabledValue;
+
 
 @end

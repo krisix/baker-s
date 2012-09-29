@@ -118,8 +118,21 @@
 }
 
 - (void)setActualSize {
-    actualIndexWidth = MIN(indexWidth, pageWidth);
+    
+    // check if automatic width is set
+    
+    if (automaticWidth) {
+        
+        actualIndexWidth = pageWidth;
+        
+    }
+    else {
+        
+        actualIndexWidth = MIN(indexWidth, pageWidth);
+    }
+    
     actualIndexHeight = MIN(indexHeight, pageHeight);
+    
 }
 
 - (BOOL)isIndexViewHidden {
@@ -222,13 +235,33 @@
 }
 
 -(void)webViewDidFinishLoad:(UIWebView *)webView {
+    
     id width = [properties get:@"-baker-index-width", nil];
     id height = [properties get:@"-baker-index-height", nil];
     
+    automaticWidth = NO;
+    
     if (width != [NSNull null]) {
-        indexWidth = (int) [width integerValue];
+        
+        // check if width is equal to string "auto"
+        // if true then make maximum width
+        
+        if ([(NSString *)width isEqualToString:@"auto"]) {
+            
+            automaticWidth = YES;
+            
+            indexWidth = [self.view superview].frame.size.width;
+            
+        }
+        else {
+            
+            indexWidth = (int) [width integerValue];
+            
+        }
     } else {
+        
         indexWidth = [self sizeFromContentOf:webView].width;
+        
     }
     if (height != [NSNull null]) {
         indexHeight = (int) [height integerValue];
@@ -237,10 +270,6 @@
     }
     
     cachedContentSize = indexScrollView.contentSize;
-    // get correct contentsize
-    if (cachedContentSize.width < indexWidth) {
-        cachedContentSize = CGSizeMake(indexWidth, indexHeight);
-    }
     [self setActualSize];
     
     NSLog(@"Set size for IndexView to %dx%d (constrained from %dx%d)", actualIndexWidth, actualIndexHeight, indexWidth, indexHeight);
@@ -249,6 +278,7 @@
     webView.delegate = webViewDelegate;
     
     [self setIndexViewHidden:[self isIndexViewHidden] withAnimation:NO];
+    
 }
 
 - (BOOL)stickToLeft {
@@ -290,6 +320,19 @@
 {
     // Return YES for supported orientations
     return YES;
+}
+
+-(void)setNewBookBundlePath:(NSString *)newBookBundlePath {
+    
+//    bookBundlePath = [NSString stringWithFormat:@"%@", newBookBundlePath];
+    bookPath = [NSString stringWithFormat:@"%@", newBookBundlePath];
+    
+}
+
+- (void)setIsDisabled:(BOOL)newDisabledValue {
+    
+    disabled = newDisabledValue;
+    
 }
 
 @end

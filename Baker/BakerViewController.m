@@ -81,6 +81,10 @@
 @synthesize scrollView;
 @synthesize currPage;
 @synthesize currentPageNumber;
+@synthesize documentsBookPath;
+
+// is called from IssuesListViewController
+BOOL calledFromIssuesListViewController = NO;
 
 #pragma mark - INIT
 - (id)initWithBookPath:(NSString *)bookPath {
@@ -88,6 +92,8 @@
     if (self) {
         NSLog(@"• INIT");
         
+        // baker-s
+        currentIssuePath = [[NSString alloc] initWithString:bookPath];
         
         // ****** INIT PROPERTIES
         properties = [Properties properties];
@@ -100,7 +106,7 @@
         
         
         // ****** BUNDLED BOOK DIRECTORY
-        bundleBookPath = [[[NSBundle mainBundle] pathForResource:@"book" ofType:nil] retain];
+        bundleBookPath = [[[NSBundle mainBundle] pathForResource:currentIssuePath ofType:nil] retain];
         
         
         // ****** DOWNLOADED BOOKS DIRECTORY
@@ -108,7 +114,7 @@
         if (![[NSFileManager defaultManager] fileExistsAtPath:privateDocsPath]) {
             [[NSFileManager defaultManager] createDirectoryAtPath:privateDocsPath withIntermediateDirectories:YES attributes:nil error:nil];
         }
-        documentsBookPath = [[privateDocsPath stringByAppendingPathComponent:@"book"] retain];
+        documentsBookPath = [[privateDocsPath stringByAppendingPathComponent:currentIssuePath] retain];
         
         
         // ****** SCREENSHOTS DIRECTORY //TODO: set in load book only if is necessary
@@ -160,6 +166,17 @@
         
         [self.view addSubview:scrollView];
         
+
+        // baker-s
+        topMenuViewController = [[TopMenuViewController alloc] initWithUserInterface];
+        [topMenuViewController setDelegate:self];
+        [self.view addSubview:topMenuViewController.view];
+        
+        issuesListViewController = [[IssuesListViewController alloc] init];
+        [issuesListViewController setDelegate:self];
+        issuesListViewController.view.alpha = 0.0f;
+        [self.view addSubview:issuesListViewController.view];
+        [self addChildViewController:issuesListViewController];
         
         
         
@@ -669,6 +686,174 @@
             }
         }
     }
+}
+- (void)resetDocumentsBookPath:(NSString *)newDocumentsPath {
+    
+    documentsBookPath = [[NSString alloc] initWithString:newDocumentsPath];
+    
+    [indexViewController setIsDisabled:NO];
+    
+    NSLog(@" >>> reset documentsBookPath with: %@", documentsBookPath);
+    
+}
+
+#pragma mark - MAGAZINE MANAGAMENT
+- (BOOL)refreshBookPath:(NSString *)partBookPath {
+    
+    //
+    // refresh current book paths
+    //
+    
+    NSLog(@" >> refreshBookPath:%@", partBookPath);
+    
+    if (![partBookPath isEqualToString:currentIssuePath]) {
+        
+        //
+        // loading new issue
+        //
+        
+        [currentIssuePath release];
+        currentIssuePath = [[NSString alloc] initWithString:partBookPath];
+        
+        // ****** BOOK DIRECTORIES
+        NSString *privateDocsPath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent:@"Private Documents"];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:privateDocsPath]) {
+            
+            [[NSFileManager defaultManager] createDirectoryAtPath:privateDocsPath withIntermediateDirectories:YES attributes:nil error:nil];
+            
+        }
+        
+        NSString *cachePath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:cachePath]) {
+            
+            [[NSFileManager defaultManager] createDirectoryAtPath:cachePath withIntermediateDirectories:YES attributes:nil error:nil];
+            
+        }
+        
+        bundleBookPath        = [[[NSBundle mainBundle] pathForResource:partBookPath ofType:nil] retain];
+        documentsBookPath     = [[privateDocsPath stringByAppendingPathComponent:partBookPath] retain];
+        
+        NSLog(@"bundleBookPath: %@", bundleBookPath);
+        NSLog(@"documentsBookPath: %@", documentsBookPath);
+        
+        
+        //
+        // clear screenshots
+        
+        [self clearScreenshots];
+
+        
+        // ****** BOOK INIT
+        if ([[NSFileManager defaultManager] fileExistsAtPath:documentsBookPath]) {
+            
+//            [self initBook:documentsBookPath];
+
+            [self loadBookWithBookPath:documentsBookPath];
+            [indexViewController loadContent];
+            
+            [self startReading];
+            
+            return YES;
+            
+        }
+        else {
+            
+            if ([[NSFileManager defaultManager] fileExistsAtPath:bundleBookPath]) {
+                
+                [indexViewController setNewBookBundlePath:bundleBookPath];
+                
+//                [self initBook:bundleBookPath];
+                [self loadBookWithBookPath:bundleBookPath];
+                
+//                [indexViewController loadContentFromBundle:YES];
+                [indexViewController loadContent];
+                
+                [self startReading];
+                
+                return YES;
+                
+            } else {
+                
+                // Do something if there are no books available to show
+                return NO;
+                
+            }
+        }
+        
+    }
+    else {
+        
+        //
+        // choosed issue is already opened
+        //
+        return YES;
+        
+    }
+    
+}
+- (BOOL)removeBook:(NSString *)partBookPath {
+    
+    //
+    // removing book
+    //
+    
+    NSString *privateDocsPath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent:@"Private Documents"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:privateDocsPath]) {
+        
+        NSError *err = nil;
+        
+        //
+        // get private docs book path
+        
+        NSString *privateDocsBookPath = [privateDocsPath stringByAppendingPathComponent:partBookPath];
+        NSArray *directoryContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:privateDocsBookPath error:&err];
+        
+        if (err == nil) {
+            
+            for (NSString *path in directoryContents) {
+                
+                NSString *fullPath = [privateDocsBookPath stringByAppendingPathComponent:path];
+                
+                NSLog(@" >>> Path to remove: %@", path);
+                NSLog(@" >>> Fullpath to remove: %@", fullPath);
+                
+                if (![path isEqualToString:@"cover.jpg"]) {
+                    
+                    //
+                    // remove file if it is not cover
+                    
+                    [[NSFileManager defaultManager] removeItemAtPath:fullPath error:nil];
+                    
+                }
+                
+            }
+            
+            return YES;
+            
+        }
+        else {
+            
+            //
+            // error
+            
+            NSLog(@" >>> Error listing book content: %@", err);
+            
+            return NO;
+            
+        }
+        
+    }
+    else {
+        
+        //
+        // no directory at Private Documents
+        
+        NSLog(@" >>>> Private Documents folder doesn't exists.");
+        
+        return NO;
+        
+    }
+    
 }
 
 #pragma mark - LOADING
@@ -1597,6 +1782,21 @@
     
     [screenshotView release];
 }
+- (void)clearScreenshots {
+    
+    //    NSArray *dirContent = [[NSFileManager defaultManager] directoryContentsAtPath:cachedSnapshotsPath];
+    NSArray *dirContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:cachedScreenshotsPath error:NULL];
+    
+    int fileCount = [dirContent count];
+    for (int i = 0; i < fileCount; i++) {
+        
+        NSLog(@"%@", [cachedScreenshotsPath stringByAppendingPathComponent:[dirContent objectAtIndex:i]]);
+        
+        [[NSFileManager defaultManager] removeItemAtPath:[cachedScreenshotsPath stringByAppendingPathComponent:[dirContent objectAtIndex:i]] error:NULL];
+        
+    }
+    
+}   //-------------
 
 #pragma mark - GESTURES
 - (void)handleInterceptedTouch:(NSNotification *)notification {
@@ -1750,8 +1950,25 @@
         UIApplication *sharedApplication = [UIApplication sharedApplication];
         BOOL hidden = sharedApplication.statusBarHidden;
         [sharedApplication setStatusBarHidden:!hidden withAnimation:UIStatusBarAnimationSlide];
+
+        if (calledFromIssuesListViewController) {
+            
+            // when called from issues list view controller then it won't show indexViewController
+            // change status
+            [indexViewController setIsDisabled:NO];
+            
+            // reset caller source
+            calledFromIssuesListViewController = NO;
+            
+        }
+        
         if(![indexViewController isDisabled]) {
+
             [indexViewController setIndexViewHidden:!hidden withAnimation:YES];
+
+            // baker-s
+            [topMenuViewController setTopMenuViewHidden:!hidden withAnimation:YES];
+
         }
     }
 }
@@ -1759,6 +1976,10 @@
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
     if(![indexViewController isDisabled]) {
         [indexViewController setIndexViewHidden:YES withAnimation:YES];
+
+        // baker-s
+        [topMenuViewController setTopMenuViewHidden:YES withAnimation:YES];
+    
     }
 }
 
@@ -1893,7 +2114,10 @@
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     // Notify the index view
     [indexViewController willRotate];
-    
+
+    // baker-s: notify top menu view
+    [topMenuViewController willRotate];
+
     // Notify the current loaded views
     [self webView:currPage setCorrectOrientation:toInterfaceOrientation];
     if (nextPage) [self webView:nextPage setCorrectOrientation:toInterfaceOrientation];
@@ -1902,7 +2126,10 @@
 }
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     [indexViewController rotateFromOrientation:fromInterfaceOrientation toOrientation:self.interfaceOrientation];
-    
+
+    // baker-s: notify top menu view
+    [topMenuViewController rotateFromOrientation:fromInterfaceOrientation toOrientation:self.interfaceOrientation];
+
     [self setCurrentPageHeight];
     [self updateBookLayout];
 }
@@ -1986,5 +2213,35 @@
     }
 }
 
+#pragma mark - IssuesListViewControllerDelegate
+- (void)didSelectedIssue:(NSInteger)issueNumber {
+    
+    NSLog(@" >>> didSelectedIssue");
+    
+    calledFromIssuesListViewController = YES;
+    
+    //[self toggleStatusBar];
+    
+}
+
+
+#pragma mark - TopMenuViewControllerDelegate
+- (void)openIssuesListViewController {
+    
+    [self toggleStatusBar];
+    
+    [UIView beginAnimations:@"showIssuesListViewController" context:nil]; {
+        
+        [UIView setAnimationDuration:0.5f];
+        [UIView setAnimationCurve:UIViewAnimationCurveEaseIn];
+        
+        [self.view bringSubviewToFront:issuesListViewController.view];
+        
+        issuesListViewController.view.alpha = 1.0f;
+        
+    }
+    [UIView commitAnimations];
+    
+}
 
 @end

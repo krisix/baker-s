@@ -60,7 +60,7 @@
     application.applicationSupportsShakeToEdit = NO;
     
     // Create the controller for the root view
-    self.rootViewController = [[[BakerViewController alloc] initWithBookPath:[[NSBundle mainBundle] pathForResource:@"book" ofType:nil]] autorelease];
+    self.rootViewController = [[[BakerViewController alloc] initWithBookPath:[[NSBundle mainBundle] pathForResource:@"book0" ofType:nil]] autorelease];
     
     // Create the application window
     self.window = [[[InterceptorWindow alloc] initWithFrame:[[UIScreen mainScreen]bounds]] autorelease];
