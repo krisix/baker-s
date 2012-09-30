@@ -14,6 +14,11 @@ Baker is the first stepping stone to show that we could already be using the pow
 to create books with real typography, real layouts and high-quality design.
 
 
+WHAT IS BAKER-S
+---------------
+
+Baker-s is project based on the original Baker <http://bakerframework.com> but it has built-in shelf support.
+
 
 HOW TO USE BAKER
 ----------------
@@ -70,6 +75,53 @@ This is an example of a minimal book.json file:
     }
 
 For all the details and the advanced options, check the [Hpub specification on the wiki](https://github.com/Simbul/baker/wiki/hpub-specification).
+
+
+ISSUES.JSON
+-----------
+
+This is an example of a issues.json file. You need one file archived in distribution package and one need to be uploaded 
+on the server.
+
+    { 
+      "issues-remote-url":        "http://tenkai.pl/baker-s/issues.json",
+      "issues-last-update-date":  "2012-09-15 17:00:00",
+      
+      "issues":  [
+                   "A Study in Scarlet"
+      ],
+      
+      "A Study in Scarlet": {
+          "issue-number":         "1",
+          "issue-number-desc":    "15th September 2012",
+          "release-date":         "2012-09-15",
+          "title":                "A Study in Scarlet",
+          "main-topic":           "A Study in Scarlet",
+          "download-url":         "http://tenkai.pl/baker-s/1",
+          "directory":            "book0",
+          "cover-local":          "book0/cover.png",
+          "cover-remote":         "http://tenkai.pl/baker-s/covers/0.png"
+      }
+    }
+
+**A issues.json specification**:
+
+* issues-remote-url: an address of a remote issues.json file
+* issues-last-update-date: last update
+* issues: array of available issues
+* next you have specified issues (below)
+
+**A single issue specification**:
+
+* issue-number: issue number
+* issue-number-desc: issue number description
+* release-date: issue release date
+* title: issue title
+* main-topic: issue main topic
+* download-url: issue url location
+* directory: directory where issue should be stored after download
+* cover-local: a filename of local cover
+* cover-remote: a url to remote cover
 
 
 CREATE A BOOK FOR BOTH IPAD AND IPHONE
