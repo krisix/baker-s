@@ -17,7 +17,7 @@ to create books with real typography, real layouts and high-quality design.
 WHAT IS BAKER-S
 ---------------
 
-Baker-s is project based on the original Baker <http://bakerframework.com> but it has built-in shelf support.
+Baker-s(helf) is project based on the original Baker <http://bakerframework.com> but it has built-in shelf support.
 
 
 HOW TO USE BAKER
@@ -165,10 +165,12 @@ When it's ready:
 BUGS AND FEEDBACK
 -----------------
 
-* Submit your bugs here: <http://github.com/simbul/baker/issues>
-* Give us your feedback at: <info@bakerframework.com>
-* Follow us on Twitter: <http://twitter.com/BakerFramework>
+* Submit original Bakerframework bugs here: <http://github.com/simbul/baker/issues>
+* Give your feedback to original Bakerframework at: <info@bakerframework.com>
+* Follow original Bakerframework on Twitter: <http://twitter.com/BakerFramework>
 
+* Submit Bakerframework-s(helf) bugs here: <http://github.com/krisix/baker-s/issues>
+* Follow me on Twitter: <http://twitter.com/krisix>
 
 
 CHANGELOG
