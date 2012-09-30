@@ -1,5 +1,5 @@
-Project Baker
-=============
+Project Baker-S
+===============
 
 **The HTML5 ebook framework to publish interactive books & magazines on iPad & iPhone using simply open web standards**  
 <http://bakerframework.com>  
